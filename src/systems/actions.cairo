@@ -4,7 +4,7 @@ use luckyguess::models::config::Config;
 // Interface definition
 #[starknet::interface]
 pub trait IActions<T> {
-    fn place_bet(ref self: T, bet_amount: u32, chosen_side: CoinSide) -> u32;
+    fn place_bet(ref self: T, bet_amount: u256, chosen_side: CoinSide) -> u32;
     fn resolve_bet(ref self: T, game_id: u32);
     fn update_config(ref self: T, config: Option<Config>);
 }
@@ -31,7 +31,7 @@ mod actions {
         game_id: u32,
         #[key]
         player: ContractAddress,
-        bet_amount: u32,
+        bet_amount: u256,
         chosen_side: CoinSide,
         block_number: u64,
     }
@@ -46,7 +46,7 @@ mod actions {
         chosen_side: CoinSide,
         actual_result: CoinSide,
         won: bool,
-        payout_amount: u32,
+        payout_amount: u256,
         block_number: u64,
     }
 
@@ -56,14 +56,14 @@ mod actions {
         #[key]
         updater: ContractAddress,
         house_edge_basis_points: u16,
-        min_bet_amount: u32,
-        max_bet_amount: u32,
+        min_bet_amount: u256,
+        max_bet_amount: u256,
         is_paused: bool,
     }
 
     #[abi(embed_v0)]
     impl ActionsImpl of super::IActions<ContractState> {
-        fn place_bet(ref self: ContractState, bet_amount: u32, chosen_side: CoinSide) -> u32 {
+        fn place_bet(ref self: ContractState, bet_amount: u256, chosen_side: CoinSide) -> u32 {
             let player = get_caller_address();
             let block_info = get_block_info().unbox();
             let current_block = block_info.block_number;
@@ -128,7 +128,7 @@ mod actions {
             assert(game.can_resolve(current_block), 'Must wait for next block');
             assert(!game.is_expired(current_block, config.max_blocks_to_resolve), 'Game expired');
 
-            // Use random boolean to determine coin flip result
+            // Use TRUE 50/50 random coin flip
             let mut random = RandomImpl::new();
             let is_heads = random.bool();
             let actual_result = if is_heads {
@@ -137,7 +137,7 @@ mod actions {
                 CoinSide::Tails
             };
 
-            // Calculate payout if player won
+            // Calculate payout if player won (house edge built into payout calculation)
             let chosen_side = game.chosen_side.unwrap();
             let payout_amount = if chosen_side == actual_result {
                 config.calculate_payout(game.bet_amount)
