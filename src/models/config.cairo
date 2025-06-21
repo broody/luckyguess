@@ -8,6 +8,7 @@ pub struct Config {
     pub max_bet_amount: u256,             // Maximum bet amount (with decimals)
     pub max_blocks_to_resolve: u64,       // Game expiry in blocks
     pub is_paused: bool,                  // Emergency pause mechanism
+    pub use_vrf: bool,                    // Use VRF for random number generation
 }
 
 // Trait for config management
@@ -27,6 +28,7 @@ pub impl ConfigImpl of ConfigTrait {
             max_bet_amount: 1000000000000000000000, // 1000 tokens (18 decimals)
             max_blocks_to_resolve: 10,            // 10 blocks to resolve
             is_paused: false,
+            use_vrf: false,
         }
     }
 

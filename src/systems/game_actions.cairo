@@ -1,16 +1,14 @@
 use luckyguess::models::coin_flip::CoinSide;
-use luckyguess::models::config::Config;
 
 // Interface definition
 #[starknet::interface]
-pub trait IActions<T> {
+pub trait IGameActions<T> {
     fn place_bet(ref self: T, bet_amount: u256, chosen_side: CoinSide) -> u32;
     fn resolve_bet(ref self: T, game_id: u32);
-    fn update_config(ref self: T, config: Option<Config>);
 }
 
 #[dojo::contract]
-mod actions {
+mod game_actions {
     use starknet::{ContractAddress, get_caller_address, get_block_info};
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
@@ -20,7 +18,7 @@ mod actions {
         CoinFlipGame, CoinSide, GameStatus, CoinFlipGameTrait,
     };
     use luckyguess::models::config::{
-        Config, ConfigTrait, ConfigImpl, WORLD_RESOURCE
+        Config, ConfigTrait, WORLD_RESOURCE
     };
     use luckyguess::random::RandomImpl;
 
@@ -50,19 +48,8 @@ mod actions {
         block_number: u64,
     }
 
-    #[derive(Drop, Serde)]
-    #[dojo::event]
-    struct ConfigUpdated {
-        #[key]
-        updater: ContractAddress,
-        house_edge_basis_points: u16,
-        min_bet_amount: u256,
-        max_bet_amount: u256,
-        is_paused: bool,
-    }
-
     #[abi(embed_v0)]
-    impl ActionsImpl of super::IActions<ContractState> {
+    impl GameActionsImpl of super::IGameActions<ContractState> {
         fn place_bet(ref self: ContractState, bet_amount: u256, chosen_side: CoinSide) -> u32 {
             let player = get_caller_address();
             let block_info = get_block_info().unbox();
@@ -70,7 +57,7 @@ mod actions {
             let current_timestamp = block_info.block_timestamp;
             let mut world = self.world(@"luckyguess");
 
-            // Get or create config
+            // Get config
             let config: Config = world.read_model(WORLD_RESOURCE);
 
             // Validate game state and bet amount
@@ -115,7 +102,7 @@ mod actions {
             let current_block = block_info.block_number;
             let mut world = self.world(@"luckyguess");
 
-            // Get config for max blocks
+            // Get config
             let config: Config = world.read_model(WORLD_RESOURCE);
 
             // Get the game
@@ -128,8 +115,12 @@ mod actions {
             assert(game.can_resolve(current_block), 'Must wait for next block');
             assert(!game.is_expired(current_block, config.max_blocks_to_resolve), 'Game expired');
 
-            // Use TRUE 50/50 random coin flip
-            let mut random = RandomImpl::new();
+            // Use VRF or regular random based on config
+            let mut random = if config.use_vrf {
+                RandomImpl::new_vrf()
+            } else {
+                RandomImpl::new()
+            };
             let is_heads = random.bool();
             let actual_result = if is_heads {
                 CoinSide::Heads
@@ -168,23 +159,5 @@ mod actions {
                     },
                 );
         }
-
-        fn update_config(ref self: ContractState, config: Option<Config>) {
-            let owner = get_caller_address();
-            let mut world = self.world(@"luckyguess");
-            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
-
-            let new_config = config.unwrap_or(ConfigImpl::default());
-            world.write_model(@new_config);
-
-            // Emit event
-            world.emit_event(@ConfigUpdated {
-                updater: owner,
-                house_edge_basis_points: new_config.house_edge_basis_points,
-                min_bet_amount: new_config.min_bet_amount,
-                max_bet_amount: new_config.max_bet_amount,
-                is_paused: new_config.is_paused,
-            });
-        }
     }
-}
+} 

@@ -3,7 +3,8 @@ pub mod interfaces {
 }
 
 pub mod systems {
-    pub mod actions;
+    pub mod game_actions;
+    pub mod config_actions;
 }
 
 pub mod models {
