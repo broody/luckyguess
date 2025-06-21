@@ -1,10 +1,12 @@
 use luckyguess::models::coin_flip::CoinSide;
+use luckyguess::models::config::Config;
 
 // Interface definition
 #[starknet::interface]
 pub trait IActions<T> {
-    fn place_bet(ref self: T, bet_amount: u256, chosen_side: CoinSide) -> u32;
+    fn place_bet(ref self: T, bet_amount: u32, chosen_side: CoinSide) -> u32;
     fn resolve_bet(ref self: T, game_id: u32);
+    fn update_config(ref self: T, config: Option<Config>);
 }
 
 #[dojo::contract]
@@ -15,7 +17,10 @@ mod actions {
     use dojo::world::IWorldDispatcherTrait;
 
     use luckyguess::models::coin_flip::{
-        CoinFlipGame, CoinSide, GameStatus, CoinFlipGameTrait, MAX_BLOCKS_TO_RESOLVE,
+        CoinFlipGame, CoinSide, GameStatus, CoinFlipGameTrait,
+    };
+    use luckyguess::models::config::{
+        Config, ConfigTrait, ConfigImpl, WORLD_RESOURCE
     };
     use luckyguess::random::RandomImpl;
 
@@ -26,7 +31,7 @@ mod actions {
         game_id: u32,
         #[key]
         player: ContractAddress,
-        bet_amount: u256,
+        bet_amount: u32,
         chosen_side: CoinSide,
         block_number: u64,
     }
@@ -41,18 +46,36 @@ mod actions {
         chosen_side: CoinSide,
         actual_result: CoinSide,
         won: bool,
-        payout_amount: u256,
+        payout_amount: u32,
         block_number: u64,
+    }
+
+    #[derive(Drop, Serde)]
+    #[dojo::event]
+    struct ConfigUpdated {
+        #[key]
+        updater: ContractAddress,
+        house_edge_basis_points: u16,
+        min_bet_amount: u32,
+        max_bet_amount: u32,
+        is_paused: bool,
     }
 
     #[abi(embed_v0)]
     impl ActionsImpl of super::IActions<ContractState> {
-        fn place_bet(ref self: ContractState, bet_amount: u256, chosen_side: CoinSide) -> u32 {
+        fn place_bet(ref self: ContractState, bet_amount: u32, chosen_side: CoinSide) -> u32 {
             let player = get_caller_address();
             let block_info = get_block_info().unbox();
             let current_block = block_info.block_number;
             let current_timestamp = block_info.block_timestamp;
             let mut world = self.world(@"luckyguess");
+
+            // Get or create config
+            let config: Config = world.read_model(WORLD_RESOURCE);
+
+            // Validate game state and bet amount
+            assert(!config.is_game_paused(), 'Game is paused');
+            assert(config.is_valid_bet_amount(bet_amount), 'Invalid bet amount');
 
             // Generate unique game ID using dojo's uuid
             let game_id = world.dispatcher.uuid();
@@ -65,7 +88,7 @@ mod actions {
                 chosen_side: Option::Some(chosen_side),
                 actual_result: Option::None,
                 status: GameStatus::Pending,
-                house_edge_basis_points: 250, // 2.5% house edge
+                house_edge_basis_points: config.house_edge_basis_points,
                 payout_amount: 0,
                 bet_block_number: current_block,
                 resolve_block_number: 0,
@@ -92,6 +115,9 @@ mod actions {
             let current_block = block_info.block_number;
             let mut world = self.world(@"luckyguess");
 
+            // Get config for max blocks
+            let config: Config = world.read_model(WORLD_RESOURCE);
+
             // Get the game
             let mut game: CoinFlipGame = world.read_model((game_id, player));
 
@@ -100,7 +126,7 @@ mod actions {
             assert(game.bet_amount > 0, 'No bet placed');
             assert(game.chosen_side.is_some(), 'No side chosen');
             assert(game.can_resolve(current_block), 'Must wait for next block');
-            assert(!game.is_expired(current_block, MAX_BLOCKS_TO_RESOLVE), 'Game expired');
+            assert(!game.is_expired(current_block, config.max_blocks_to_resolve), 'Game expired');
 
             // Use random boolean to determine coin flip result
             let mut random = RandomImpl::new();
@@ -114,7 +140,7 @@ mod actions {
             // Calculate payout if player won
             let chosen_side = game.chosen_side.unwrap();
             let payout_amount = if chosen_side == actual_result {
-                CoinFlipGameTrait::calculate_payout(game.bet_amount, game.house_edge_basis_points)
+                config.calculate_payout(game.bet_amount)
             } else {
                 0
             };
@@ -141,6 +167,24 @@ mod actions {
                         block_number: current_block,
                     },
                 );
+        }
+
+        fn update_config(ref self: ContractState, config: Option<Config>) {
+            let owner = get_caller_address();
+            let mut world = self.world(@"luckyguess");
+            assert!(world.dispatcher.is_owner(WORLD_RESOURCE, owner), "Unauthorized owner");
+
+            let new_config = config.unwrap_or(ConfigImpl::default());
+            world.write_model(@new_config);
+
+            // Emit event
+            world.emit_event(@ConfigUpdated {
+                updater: owner,
+                house_edge_basis_points: new_config.house_edge_basis_points,
+                min_bet_amount: new_config.min_bet_amount,
+                max_bet_amount: new_config.max_bet_amount,
+                is_paused: new_config.is_paused,
+            });
         }
     }
 }

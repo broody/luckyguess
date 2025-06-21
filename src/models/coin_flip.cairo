@@ -51,12 +51,12 @@ pub struct CoinFlipGame {
     pub game_id: u32,
     #[key]
     pub player: ContractAddress,
-    pub bet_amount: u256,                      // Amount in STRK tokens (locked)
+    pub bet_amount: u32,                       // Amount in tokens (no decimals)
     pub chosen_side: Option<CoinSide>,         // Player's choice (Heads/Tails) - set when bet is placed
     pub actual_result: Option<CoinSide>,       // Actual coin flip result (set in tx2)
     pub status: GameStatus,                    // Game status
     pub house_edge_basis_points: u16,          // House edge used for this game
-    pub payout_amount: u256,                   // Payout amount (calculated in tx2)
+    pub payout_amount: u32,                    // Payout amount (calculated in tx2)
     pub bet_block_number: u64,                 // Block when bet was placed (tx1)
     pub resolve_block_number: u64,             // Block when game was resolved (tx2)
     pub timestamp: u64,                        // Game creation timestamp
@@ -69,7 +69,7 @@ pub trait CoinFlipGameTrait {
     fn is_expired(self: CoinFlipGame, current_block: u64, expiry_blocks: u64) -> bool;
     fn can_resolve(self: CoinFlipGame, current_block: u64) -> bool;
     fn must_wait_next_block(self: CoinFlipGame, current_block: u64) -> bool;
-    fn calculate_payout(bet_amount: u256, house_edge_bp: u16) -> u256;
+    fn calculate_payout(bet_amount: u32, house_edge_bp: u16) -> u32;
     fn did_player_win(self: CoinFlipGame) -> bool;
 }
 
@@ -96,11 +96,11 @@ impl CoinFlipGameImpl of CoinFlipGameTrait {
         self.is_pending() && current_block <= self.bet_block_number
     }
 
-    fn calculate_payout(bet_amount: u256, house_edge_bp: u16) -> u256 {
+    fn calculate_payout(bet_amount: u32, house_edge_bp: u16) -> u32 {
         // Calculate payout for winning bet based on house edge
         // Standard 2x payout adjusted for house edge
-        let house_edge_multiplier = 10000_u256 - house_edge_bp.into();
-        (bet_amount * 20000_u256) / house_edge_multiplier
+        let house_edge_multiplier = 10000_u32 - house_edge_bp.into();
+        (bet_amount * 20000_u32) / house_edge_multiplier
     }
 
     fn did_player_win(self: CoinFlipGame) -> bool {

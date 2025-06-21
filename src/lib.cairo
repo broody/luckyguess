@@ -8,6 +8,7 @@ pub mod systems {
 
 pub mod models {
     pub mod coin_flip;
+    pub mod config;
 }
 
 pub mod random;

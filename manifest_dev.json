@@ -1328,8 +1328,8 @@
   },
   "contracts": [
     {
-      "address": "0x256a894872943abed024c5f70fb0e16bd14333981be807d67906d60bedf512",
-      "class_hash": "0x59f6ab3a8acc7b18e85d699de6c63ed76040036dabeeb9637f0027dd0bc9bc",
+      "address": "0x31dc797d8b87394856df427392a1ecb8a93555d3430504456a94ff5fa7217e0",
+      "class_hash": "0x1cd63eecc9d88d638d8b3d15ba4d1eb9c9a55d94f4bf8516c0cd1db4c859457",
       "abi": [
         {
           "type": "impl",
@@ -1387,20 +1387,6 @@
           "interface_name": "luckyguess::systems::actions::IActions"
         },
         {
-          "type": "struct",
-          "name": "core::integer::u256",
-          "members": [
-            {
-              "name": "low",
-              "type": "core::integer::u128"
-            },
-            {
-              "name": "high",
-              "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
           "type": "enum",
           "name": "luckyguess::models::coin_flip::CoinSide",
           "variants": [
@@ -1415,6 +1401,64 @@
           ]
         },
         {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "struct",
+          "name": "luckyguess::models::config::Config",
+          "members": [
+            {
+              "name": "world_resource",
+              "type": "core::felt252"
+            },
+            {
+              "name": "house_edge_basis_points",
+              "type": "core::integer::u16"
+            },
+            {
+              "name": "min_bet_amount",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "max_bet_amount",
+              "type": "core::integer::u32"
+            },
+            {
+              "name": "max_blocks_to_resolve",
+              "type": "core::integer::u64"
+            },
+            {
+              "name": "is_paused",
+              "type": "core::bool"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::option::Option::<luckyguess::models::config::Config>",
+          "variants": [
+            {
+              "name": "Some",
+              "type": "luckyguess::models::config::Config"
+            },
+            {
+              "name": "None",
+              "type": "()"
+            }
+          ]
+        },
+        {
           "type": "interface",
           "name": "luckyguess::systems::actions::IActions",
           "items": [
@@ -1424,7 +1468,7 @@
               "inputs": [
                 {
                   "name": "bet_amount",
-                  "type": "core::integer::u256"
+                  "type": "core::integer::u32"
                 },
                 {
                   "name": "chosen_side",
@@ -1445,6 +1489,18 @@
                 {
                   "name": "game_id",
                   "type": "core::integer::u32"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "update_config",
+              "inputs": [
+                {
+                  "name": "config",
+                  "type": "core::option::Option::<luckyguess::models::config::Config>"
                 }
               ],
               "outputs": [],
@@ -1573,6 +1629,7 @@
       "systems": [
         "place_bet",
         "resolve_bet",
+        "update_config",
         "upgrade"
       ]
     }
@@ -1581,23 +1638,35 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x326e1b0b10ed623b2ca3acc5c374083ca50a9c7dfa134184af441a95b0c5276",
+      "class_hash": "0x73bb677bf1ae274c862b2d922f555e3d1c25c987dc32389b079ef97dcb5a012",
       "tag": "luckyguess-CoinFlipGame",
       "selector": "0x5fb0c17bab3191deefd7ac59cbf645b4d1ec86e26199024ef79070f48106002"
+    },
+    {
+      "members": [],
+      "class_hash": "0x43b1dc0f473ebc8ffc3b37bc0174089c5e8a6fcae117bf4cfe2a84e68fedd9a",
+      "tag": "luckyguess-Config",
+      "selector": "0x59f75ef54f4f3a188bcb71e314a32abe12ddc4de7b49d1161735f536d6eea77"
     }
   ],
   "events": [
     {
       "members": [],
-      "class_hash": "0x55c81b2748ef83fd6143009ff4d0237b35a5e39b4ca061cd72e30ce049228b8",
+      "class_hash": "0x5981e63cd49cea52c72d8dc117d562018a9e1dd4925bd3964929989b5aa8896",
       "tag": "luckyguess-BetPlaced",
       "selector": "0x4b4514ff8ccc534136ac207cd95687ada627ca65d189ccca9e25fea3fedda35"
     },
     {
       "members": [],
-      "class_hash": "0x77c78453e8c69d305908daab4fc09e6e4322d761cd69923347f3fabb3ec4e61",
+      "class_hash": "0x735df0e65d8089c8613e3255608332d3e614075594cb3bbede1f0fe0588f038",
       "tag": "luckyguess-BetResolved",
       "selector": "0x6eaacaa58cb9223cb6e65fc441280722fb7299c9188dc406eab3f2f62e9b9cd"
+    },
+    {
+      "members": [],
+      "class_hash": "0x5c1b3abd089cbff4568218230897b62f715e4464c3d7111c5f80919e28a8f42",
+      "tag": "luckyguess-ConfigUpdated",
+      "selector": "0xc15aaa355da5854ca3286f5cced7c297aaf105b40eafbfe3582e12d09d3f8e"
     }
   ],
   "external_contracts": []
