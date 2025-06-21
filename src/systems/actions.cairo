@@ -17,6 +17,7 @@ mod actions {
     use luckyguess::models::coin_flip::{
         CoinFlipGame, CoinSide, GameStatus, CoinFlipGameTrait, MAX_BLOCKS_TO_RESOLVE,
     };
+    use luckyguess::random::RandomImpl;
 
     #[derive(Drop, Serde)]
     #[dojo::event]
@@ -101,9 +102,14 @@ mod actions {
             assert(game.can_resolve(current_block), 'Must wait for next block');
             assert(!game.is_expired(current_block, MAX_BLOCKS_TO_RESOLVE), 'Game expired');
 
-            // Simple pseudo-random coin flip using block hash
-            // In production, you'd use proper VRF
-            let actual_result = CoinSide::Heads;
+            // Use random boolean to determine coin flip result
+            let mut random = RandomImpl::new();
+            let is_heads = random.bool();
+            let actual_result = if is_heads {
+                CoinSide::Heads
+            } else {
+                CoinSide::Tails
+            };
 
             // Calculate payout if player won
             let chosen_side = game.chosen_side.unwrap();
