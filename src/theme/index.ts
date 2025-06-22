@@ -7,7 +7,7 @@ const theme = createSystem(defaultConfig, {
     "html, body": {
       background: `
         linear-gradient(180deg, rgba(0, 0, 0, 0.32) 0%, rgba(0, 0, 0, 0.12) 100%),
-        {colors.purple.100}
+        #6f955f
       `,
       color: "white",
       userSelect: "none",
