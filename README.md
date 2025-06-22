@@ -18,59 +18,101 @@
 [tg-badge]: https://img.shields.io/endpoint?color=neon&logo=telegram&label=chat&style=flat-square&url=https%3A%2F%2Ftg.sumanjay.workers.dev%2Fdojoengine
 [tg-url]: https://t.me/dojoengine
 
-# Dojo Starter: Official Guide
+# Lucky Guess 🎲
 
-A quickstart guide to help you build and deploy your first Dojo provable game.
+An onchain gambling platform featuring provably fair games powered by VRF.
 
-Read the full tutorial [here](https://dojoengine.org/tutorial/dojo-starter).
+## Overview
 
-## Running Locally
+Lucky Guess is a collection of simple betting games deployed on Starknet. Currently features:
 
-#### Terminal one (Make sure this is running)
+- **Coin Flip** 🪙 - Bet on heads or tails with single-transaction gameplay
+- **Configurable House Edge** - Transparent payout-based advantage system  
+- **VRF Integration** - Provably fair randomness via Verifiable Random Functions
+- **Admin Controls** - Comprehensive configuration and emergency pause system
 
+## Quick Start
+
+### Prerequisites
+- Dojo v1.5.0
+- Scarb with Cairo 2.10.1
+
+### Running Locally
+
+#### Terminal 1 - Start Katana
 ```bash
-# Run Katana
-katana --dev --dev.no-fee
+katana --dev --dev.no-fee --http.cors_origins "*"
 ```
 
-#### Terminal two
-
+#### Terminal 2 - Deploy & Run
 ```bash
-# Build the example
+# Build contracts
 sozo build
 
-# Inspect the world
-sozo inspect
-
-# Migrate the example
+# Deploy to local Katana
 sozo migrate
 
-# Start Torii
-# Replace <WORLD_ADDRESS> with the address of the deployed world from the previous step
+# Start indexer (replace <WORLD_ADDRESS> with deployed world address)
 torii --world <WORLD_ADDRESS> --http.cors_origins "*"
 ```
 
-## Docker
-You can start stack using docker compose. [Here are the installation instruction](https://docs.docker.com/engine/install/)
-
+### Using Docker
 ```bash
 docker compose up
 ```
-You'll get all services logs in the same terminal instance. Whenever you want to stop just ctrl+c
+
+## Game Mechanics
+
+### Coin Flip
+```cairo
+// Single transaction gameplay
+let (game_id, won, payout) = game_actions.flip_coin(bet_amount, CoinSide::Heads);
+```
+
+- **Betting**: Use STRK tokens with 18 decimal precision
+- **House Edge**: 2.5% default (configurable by admin)
+- **Randomness**: VRF-powered for provable fairness
+- **Payouts**: Instant settlement in same transaction
+
+### Configuration Management
+```cairo
+// Admin functions
+config_actions.set_house_edge(250);        // 2.5% house edge
+config_actions.set_bet_limits(min, max);   // Configure bet limits
+config_actions.pause_game();               // Emergency pause
+config_actions.set_use_vrf(true);          // Enable VRF
+```
+
+## Architecture
+
+## Key Features
+
+- ✅ **Single-Transaction Games** - No waiting between bet and resolution
+- ✅ **VRF Integration** - Cryptographically secure randomness
+- ✅ **Transparent House Edge** - Payout-based, not probability manipulation
+- ✅ **Admin Controls** - Granular configuration management
+- ✅ **Emergency Pause** - Instant game suspension capability
+- ✅ **Event Logging** - Complete audit trail
+- 🚧 **Token Integration** - STRK betting, GUESS rewards (coming soon)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/new-game`
+3. Commit changes: `git commit -am 'Add new game'`
+4. Push to branch: `git push origin feature/new-game`
+5. Submit a Pull Request
+
+## Resources
+
+- **Website**: [luckyguess.gg](https://luckyguess.gg)
+- **Dojo Docs**: [book.dojoengine.org](https://book.dojoengine.org)
+- **Cairo Docs**: [book.cairo-lang.org](https://book.cairo-lang.org)
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-## Contribution
-
-1. **Report a Bug**
-
-    - If you think you have encountered a bug, and we should know about it, feel free to report it [here](https://github.com/dojoengine/dojo-starter/issues) and we will take care of it.
-
-2. **Request a Feature**
-
-    - You can also request for a feature [here](https://github.com/dojoengine/dojo-starter/issues), and if it's viable, it will be picked for development.
-
-3. **Create a Pull Request**
-    - It can't get better then this, your pull request will be appreciated by the community.
-
-Happy coding!
+Built with ❤️ using [Dojo Engine](https://dojoengine.org)
