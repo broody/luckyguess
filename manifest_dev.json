@@ -1328,12 +1328,12 @@
   },
   "contracts": [
     {
-      "address": "0x5ac6e65e118f789629d5a865ce42a6aed48efca30ff473b309cd488d19a5762",
-      "class_hash": "0x7aead744be749ab637867847530084e41e99ee4a273747a24e76f1ffec4f72d",
+      "address": "0x627ee3f07b78c4797d2e21f5e3c31ee6c174923c48ed4b88f08c2157607c06d",
+      "class_hash": "0x366d6e82a51ce3402155716442880c855dd4c895fc5370d8df71d32e43d3a9a",
       "abi": [
         {
           "type": "impl",
-          "name": "actions__ContractImpl",
+          "name": "config_actions__ContractImpl",
           "interface_name": "dojo::contract::interface::IContract"
         },
         {
@@ -1343,7 +1343,7 @@
         },
         {
           "type": "impl",
-          "name": "actions__DeployedContractImpl",
+          "name": "config_actions__DeployedContractImpl",
           "interface_name": "dojo::meta::interface::IDeployedResource"
         },
         {
@@ -1383,8 +1383,8 @@
         },
         {
           "type": "impl",
-          "name": "ActionsImpl",
-          "interface_name": "luckyguess::systems::actions::IActions"
+          "name": "ConfigActionsImpl",
+          "interface_name": "luckyguess::systems::config_actions::IConfigActions"
         },
         {
           "type": "struct",
@@ -1397,20 +1397,6 @@
             {
               "name": "high",
               "type": "core::integer::u128"
-            }
-          ]
-        },
-        {
-          "type": "enum",
-          "name": "luckyguess::models::coin_flip::CoinSide",
-          "variants": [
-            {
-              "name": "Heads",
-              "type": "()"
-            },
-            {
-              "name": "Tails",
-              "type": "()"
             }
           ]
         },
@@ -1455,30 +1441,340 @@
             {
               "name": "is_paused",
               "type": "core::bool"
+            },
+            {
+              "name": "use_vrf",
+              "type": "core::bool"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "luckyguess::systems::config_actions::IConfigActions",
+          "items": [
+            {
+              "type": "function",
+              "name": "pause_game",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "unpause_game",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_house_edge",
+              "inputs": [
+                {
+                  "name": "house_edge_basis_points",
+                  "type": "core::integer::u16"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_bet_limits",
+              "inputs": [
+                {
+                  "name": "min_bet_amount",
+                  "type": "core::integer::u256"
+                },
+                {
+                  "name": "max_bet_amount",
+                  "type": "core::integer::u256"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_use_vrf",
+              "inputs": [
+                {
+                  "name": "use_vrf",
+                  "type": "core::bool"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "set_max_blocks_to_resolve",
+              "inputs": [
+                {
+                  "name": "max_blocks",
+                  "type": "core::integer::u64"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "initialize_config",
+              "inputs": [],
+              "outputs": [],
+              "state_mutability": "external"
+            },
+            {
+              "type": "function",
+              "name": "get_config",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "luckyguess::models::config::Config"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "function",
+          "name": "dojo_init",
+          "inputs": [],
+          "outputs": [],
+          "state_mutability": "view"
+        },
+        {
+          "type": "impl",
+          "name": "WorldProviderImpl",
+          "interface_name": "dojo::contract::components::world_provider::IWorldProvider"
+        },
+        {
+          "type": "struct",
+          "name": "dojo::world::iworld::IWorldDispatcher",
+          "members": [
+            {
+              "name": "contract_address",
+              "type": "core::starknet::contract_address::ContractAddress"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::world_provider::IWorldProvider",
+          "items": [
+            {
+              "type": "function",
+              "name": "world_dispatcher",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "dojo::world::iworld::IWorldDispatcher"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "UpgradeableImpl",
+          "interface_name": "dojo::contract::components::upgradeable::IUpgradeable"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::components::upgradeable::IUpgradeable",
+          "items": [
+            {
+              "type": "function",
+              "name": "upgrade",
+              "inputs": [
+                {
+                  "name": "new_class_hash",
+                  "type": "core::starknet::class_hash::ClassHash"
+                }
+              ],
+              "outputs": [],
+              "state_mutability": "external"
+            }
+          ]
+        },
+        {
+          "type": "constructor",
+          "name": "constructor",
+          "inputs": []
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+          "kind": "struct",
+          "members": [
+            {
+              "name": "class_hash",
+              "type": "core::starknet::class_hash::ClassHash",
+              "kind": "data"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "Upgraded",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Upgraded",
+              "kind": "nested"
+            }
+          ]
+        },
+        {
+          "type": "event",
+          "name": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+          "kind": "enum",
+          "variants": []
+        },
+        {
+          "type": "event",
+          "name": "luckyguess::systems::config_actions::config_actions::Event",
+          "kind": "enum",
+          "variants": [
+            {
+              "name": "UpgradeableEvent",
+              "type": "dojo::contract::components::upgradeable::upgradeable_cpt::Event",
+              "kind": "nested"
+            },
+            {
+              "name": "WorldProviderEvent",
+              "type": "dojo::contract::components::world_provider::world_provider_cpt::Event",
+              "kind": "nested"
+            }
+          ]
+        }
+      ],
+      "init_calldata": [],
+      "tag": "luckyguess-config_actions",
+      "selector": "0x76fd0b6620c96cfc33e7ae765c402f2dde79a699f332b655be52ca19cdafa9e",
+      "systems": [
+        "pause_game",
+        "unpause_game",
+        "set_house_edge",
+        "set_bet_limits",
+        "set_use_vrf",
+        "set_max_blocks_to_resolve",
+        "initialize_config",
+        "upgrade"
+      ]
+    },
+    {
+      "address": "0x7f0a2ce0da7ee34216c2fb34be711456420068bf5ea2d370ed019149462f694",
+      "class_hash": "0x1327a431811658799a4e6b79edd783f40d5a38dd72cfe8f9e04ee1b93f1f3f2",
+      "abi": [
+        {
+          "type": "impl",
+          "name": "game_actions__ContractImpl",
+          "interface_name": "dojo::contract::interface::IContract"
+        },
+        {
+          "type": "interface",
+          "name": "dojo::contract::interface::IContract",
+          "items": []
+        },
+        {
+          "type": "impl",
+          "name": "game_actions__DeployedContractImpl",
+          "interface_name": "dojo::meta::interface::IDeployedResource"
+        },
+        {
+          "type": "struct",
+          "name": "core::byte_array::ByteArray",
+          "members": [
+            {
+              "name": "data",
+              "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+              "name": "pending_word",
+              "type": "core::felt252"
+            },
+            {
+              "name": "pending_word_len",
+              "type": "core::integer::u32"
+            }
+          ]
+        },
+        {
+          "type": "interface",
+          "name": "dojo::meta::interface::IDeployedResource",
+          "items": [
+            {
+              "type": "function",
+              "name": "dojo_name",
+              "inputs": [],
+              "outputs": [
+                {
+                  "type": "core::byte_array::ByteArray"
+                }
+              ],
+              "state_mutability": "view"
+            }
+          ]
+        },
+        {
+          "type": "impl",
+          "name": "GameActionsImpl",
+          "interface_name": "luckyguess::systems::game_actions::IGameActions"
+        },
+        {
+          "type": "struct",
+          "name": "core::integer::u256",
+          "members": [
+            {
+              "name": "low",
+              "type": "core::integer::u128"
+            },
+            {
+              "name": "high",
+              "type": "core::integer::u128"
             }
           ]
         },
         {
           "type": "enum",
-          "name": "core::option::Option::<luckyguess::models::config::Config>",
+          "name": "luckyguess::models::coin_flip::CoinSide",
           "variants": [
             {
-              "name": "Some",
-              "type": "luckyguess::models::config::Config"
+              "name": "Heads",
+              "type": "()"
             },
             {
-              "name": "None",
+              "name": "Tails",
+              "type": "()"
+            }
+          ]
+        },
+        {
+          "type": "enum",
+          "name": "core::bool",
+          "variants": [
+            {
+              "name": "False",
+              "type": "()"
+            },
+            {
+              "name": "True",
               "type": "()"
             }
           ]
         },
         {
           "type": "interface",
-          "name": "luckyguess::systems::actions::IActions",
+          "name": "luckyguess::systems::game_actions::IGameActions",
           "items": [
             {
               "type": "function",
-              "name": "place_bet",
+              "name": "play_game",
               "inputs": [
                 {
                   "name": "bet_amount",
@@ -1491,33 +1787,9 @@
               ],
               "outputs": [
                 {
-                  "type": "core::integer::u32"
+                  "type": "(core::integer::u32, core::bool, core::integer::u256)"
                 }
               ],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "resolve_bet",
-              "inputs": [
-                {
-                  "name": "game_id",
-                  "type": "core::integer::u32"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "update_config",
-              "inputs": [
-                {
-                  "name": "config",
-                  "type": "core::option::Option::<luckyguess::models::config::Config>"
-                }
-              ],
-              "outputs": [],
               "state_mutability": "external"
             }
           ]
@@ -1621,7 +1893,7 @@
         },
         {
           "type": "event",
-          "name": "luckyguess::systems::actions::actions::Event",
+          "name": "luckyguess::systems::game_actions::game_actions::Event",
           "kind": "enum",
           "variants": [
             {
@@ -1638,12 +1910,10 @@
         }
       ],
       "init_calldata": [],
-      "tag": "luckyguess-actions",
-      "selector": "0x18dce60e15533cb90f6e4a5a65a11bdec879e1411006dd5ac31e135b0f680eb",
+      "tag": "luckyguess-game_actions",
+      "selector": "0x3e05519d3abaac49dc9275f151ce58ff5aca88d4fda469dc9b10e0ba26365fe",
       "systems": [
-        "place_bet",
-        "resolve_bet",
-        "update_config",
+        "play_game",
         "upgrade"
       ]
     }
@@ -1652,13 +1922,13 @@
   "models": [
     {
       "members": [],
-      "class_hash": "0x326e1b0b10ed623b2ca3acc5c374083ca50a9c7dfa134184af441a95b0c5276",
+      "class_hash": "0x9c69e36472ee2bf8a4026c54f2a1909139225f898675bde5b4547740707cf4",
       "tag": "luckyguess-CoinFlipGame",
       "selector": "0x5fb0c17bab3191deefd7ac59cbf645b4d1ec86e26199024ef79070f48106002"
     },
     {
       "members": [],
-      "class_hash": "0x77a79ec0f636c136783bbd37dff00a36c948f2b494e392ab78ff980c6e5a424",
+      "class_hash": "0xba35e29b73fee738194b68d4480b3f5b40910ba9dd7a4be825a4fd179a999c",
       "tag": "luckyguess-Config",
       "selector": "0x59f75ef54f4f3a188bcb71e314a32abe12ddc4de7b49d1161735f536d6eea77"
     }
@@ -1666,21 +1936,51 @@
   "events": [
     {
       "members": [],
-      "class_hash": "0x55c81b2748ef83fd6143009ff4d0237b35a5e39b4ca061cd72e30ce049228b8",
-      "tag": "luckyguess-BetPlaced",
-      "selector": "0x4b4514ff8ccc534136ac207cd95687ada627ca65d189ccca9e25fea3fedda35"
+      "class_hash": "0x252351111fb16a4c01a7295ed25a546de5b4e8e62d52696ad31e941877cab3d",
+      "tag": "luckyguess-BetLimitsUpdated",
+      "selector": "0x52c81744f99a8ca3f74ea2e47f2238fd5b84aba315d29d638bdb01e683f1e90"
     },
     {
       "members": [],
-      "class_hash": "0x77c78453e8c69d305908daab4fc09e6e4322d761cd69923347f3fabb3ec4e61",
-      "tag": "luckyguess-BetResolved",
-      "selector": "0x6eaacaa58cb9223cb6e65fc441280722fb7299c9188dc406eab3f2f62e9b9cd"
+      "class_hash": "0x52484af8b85279b91e9f3bf7a327a729986636a275ed9a6dffa892a8c46d623",
+      "tag": "luckyguess-ConfigInitialized",
+      "selector": "0x661cf8f78334894f09cda81965896c63ad98211cb518dd38575535d95f3578a"
     },
     {
       "members": [],
-      "class_hash": "0x688d13c1c19a1ac53835af1d8fdea0575306edab78adef6f0c2f7bf072af545",
-      "tag": "luckyguess-ConfigUpdated",
-      "selector": "0xc15aaa355da5854ca3286f5cced7c297aaf105b40eafbfe3582e12d09d3f8e"
+      "class_hash": "0x7a9bcad62db443ba165e47c03c8fc272e76d90a3ed55a8f5428031010cdc532",
+      "tag": "luckyguess-GamePaused",
+      "selector": "0x1835a6c351f200574e61993e302a20ea0cf6c30717ee94e10fe2fc223cac44a"
+    },
+    {
+      "members": [],
+      "class_hash": "0x133d410ed591e44f634ded373141a234f767bea1ce04e3fa1b3f61acae19c3b",
+      "tag": "luckyguess-GamePlayed",
+      "selector": "0x3e92f492f0c33931fec40ebeefa9f27308fcadb8c9309a5456a6abbd314db6c"
+    },
+    {
+      "members": [],
+      "class_hash": "0x1824d11f5a6f52270bcccec1dffb9738ba6008de0d20347faa38eb1b7df4f29",
+      "tag": "luckyguess-GameUnpaused",
+      "selector": "0x436fe244f72297e91ca6797764429c9db1083fe6981dc884a13cebc9ce20c15"
+    },
+    {
+      "members": [],
+      "class_hash": "0x82d6bce33e54538400f0497d29005c288df91b475dc37df42ab4155c686b0d",
+      "tag": "luckyguess-HouseEdgeUpdated",
+      "selector": "0x38721a8c50cae24c95d22aba9c09e405d33d9a818b120a5350d07c9cb5b94fd"
+    },
+    {
+      "members": [],
+      "class_hash": "0x5ef102e69c6c4fdcbb4fbe6b18974103fd19d8c26386476058251486ae80cbb",
+      "tag": "luckyguess-MaxBlocksUpdated",
+      "selector": "0x68306fb8155c2131883850cb45a4ade747f8f49eae9c5d7b76bb4b280acfee5"
+    },
+    {
+      "members": [],
+      "class_hash": "0x32bd96b14464d3c8a7fdcbd791065179bd3de37b8031265df13fde4fe1f63c",
+      "tag": "luckyguess-VrfSettingUpdated",
+      "selector": "0xaaed0cc303edc235bd670d0d14247a98902bf6fd74900521cace6302f0cff7"
     }
   ],
   "external_contracts": []
