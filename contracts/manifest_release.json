@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4c60dc46a8ca8bb47675b7b914053cef769afbf0e340523187336b72bd71d1f",
-    "address": "0x46d0f555e20b9cdee229258be0e84e0ed82f4399e2fe7d44cdaa0aadc088d2f",
-    "seed": "luckguess",
+    "address": "0x3c3db187b07c91c225eb59faf8723bde6fbde7b76eb02026248449491a06f86",
+    "seed": "luckguess-test",
     "name": "Lucky Guess",
     "entrypoints": [
       "uuid",
@@ -1328,7 +1328,7 @@
   },
   "contracts": [
     {
-      "address": "0x627ee3f07b78c4797d2e21f5e3c31ee6c174923c48ed4b88f08c2157607c06d",
+      "address": "0x55b0ca2cf4eab6bab2589d89d95a65ca4445adc009fbc6966ed8ca801cae266",
       "class_hash": "0x366d6e82a51ce3402155716442880c855dd4c895fc5370d8df71d32e43d3a9a",
       "abi": [
         {
@@ -1668,7 +1668,7 @@
       ]
     },
     {
-      "address": "0x64d1e9bdbbd084ccf395da88e27b7e8f1c13034d058ecd86385cbe67cdc00e1",
+      "address": "0x7e43ce067ea6fd4c65d60dffab736b5d85eeea8e34457307418126a90d88b38",
       "class_hash": "0x3ccc503bda0a11f1f4c5582258b2cc2e10a90934a62169fb38985b80fca5610",
       "abi": [
         {
