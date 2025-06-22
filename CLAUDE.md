@@ -6,30 +6,34 @@
 
 ## Technical Stack
 
-- **Framework**: Dojo Engine
-- **Language**: Cairo
+- **Framework**: Dojo Engine v1.5.0
+- **Language**: Cairo 2.10.1
 - **Blockchain**: Starknet
-- **Randomness**: VRF (Verifiable Random Function)
+- **Randomness**: VRF (Verifiable Random Function) + Pedersen Hash fallback
 - **Primary Token**: STRK (betting currency)
 - **Reward Token**: GUESS (earned through gameplay)
 
 ## Game Portfolio
 
-### 1. Coin Flip 🪙
-- **Concept**: Players bet on heads or tails
-- **Betting Token**: STRK
-- **House Edge**: 45:55 probability (if player chooses heads, actual probability is 45% heads, 55% tails)
-- **Mechanics**: Simple binary outcome with configurable bet amounts
+### 1. Coin Flip 🪙 [IMPLEMENTED]
+- **Concept**: Players bet on heads or tails in a single transaction
+- **Betting Token**: STRK (with 18 decimal precision)
+- **House Edge**: Payout-based system (e.g., 2.5% default means 1.95x payout instead of 2x)
+- **Mechanics**: 
+  - Single transaction gameplay using VRF for true randomness
+  - Configurable bet limits (default: 1-1000 tokens)
+  - Immediate results and payouts
+  - Game history stored on-chain
 
 ### 2. Roulette 🎰
 - **Concept**: Traditional roulette game
 - **Status**: Planned
-- **House Edge**: TBD (will follow similar model to coin flip)
+- **House Edge**: Will follow similar payout-based model
 
 ### 3. High-Low Number Guessing 🔢
 - **Concept**: Players guess if next number will be higher or lower
 - **Status**: Planned
-- **House Edge**: TBD (will follow similar model to coin flip)
+- **House Edge**: Will follow similar payout-based model
 
 ### Future Games
 - Additional games to be added based on player feedback and market demand
@@ -39,8 +43,8 @@
 
 ### STRK (Betting Currency)
 - Primary currency for placing bets across all games
-- Standard Starknet token integration
-- Direct betting and payout mechanism
+- Standard Starknet token integration with 18 decimal precision
+- Direct betting and payout mechanism via token transfers
 
 ### GUESS Token (Reward & Utility)
 - **Earning**: Players earn GUESS tokens by playing games
@@ -52,16 +56,16 @@
 
 ## House Edge System
 
-### Default House Edge
-- **Coin Flip**: 45:55 probability split
-- **Future Games**: Similar slight house advantage (exact percentages TBD)
-- **Purpose**: Ensures long-term profitability while maintaining fair gameplay
+### Payout-Based House Edge (Current Implementation)
+- **Method**: Reduces payout multipliers rather than manipulating probability
+- **Coin Flip**: True 50/50 probability, but winners receive ~1.95x payout (with 2.5% house edge) instead of 2x
+- **Benefits**: 
+  - Maintains truly fair randomness
+  - Transparent and auditable
+  - Industry standard approach
+  - Player trust through verifiable fairness
 
-### Dynamic House Edge Reduction
-- Players can use GUESS tokens to purchase basis points
-- Each basis point reduces house advantage slightly
-- Reduction applies to a limited number of future bets
-- Creates incentive for continued play and token accumulation
+### Example Calculation
 
 ## Architecture Components
 
