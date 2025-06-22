@@ -1,0 +1,18 @@
+[world]
+name = "Lucky Guess"
+description = "Lucky Guess is a simple game where you can bet on a coin flip."
+website = "https://luckyguess.gg"
+seed = "luckguess-test1"
+
+
+[namespace]
+default = "luckyguess"
+
+[env]
+rpc_url = "https://api.cartridge.gg/x/starknet/sepolia"
+account_address = "0x054f2b25070d70d49f1c1f7c10Ef2639889fDAc15894D3FBa1a03caF5603eCA3"
+keystore_path = "/home/broody/.starkli_accounts/sepolia/keystore.json"
+
+[writers]
+"luckyguess" = ["luckyguess-game_actions", "luckyguess-config_actions"]
+

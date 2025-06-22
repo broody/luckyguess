@@ -30,9 +30,9 @@ impl OptionCoinSideIntoFelt252 of Into<Option<CoinSide>, felt252> {
 #[dojo::model]
 pub struct CoinFlipGame {
     #[key]
-    pub game_id: u32,
-    #[key]
     pub player: ContractAddress,
+    #[key]
+    pub hash: felt252,
     pub bet_amount: u256,                      // Amount in tokens (with decimals)
     pub chosen_side: CoinSide,                 // Player's choice (Heads/Tails)
     pub actual_result: CoinSide,               // Actual coin flip result

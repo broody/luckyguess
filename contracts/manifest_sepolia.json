@@ -1,8 +1,8 @@
 {
   "world": {
     "class_hash": "0x4c60dc46a8ca8bb47675b7b914053cef769afbf0e340523187336b72bd71d1f",
-    "address": "0x46d0f555e20b9cdee229258be0e84e0ed82f4399e2fe7d44cdaa0aadc088d2f",
-    "seed": "luckguess",
+    "address": "0x58ffe737bc0c22a84bcc31a9cdab5e62dcbb97a15ad232e177f3f5407fc7e72",
+    "seed": "luckguess-test1",
     "name": "Lucky Guess",
     "entrypoints": [
       "uuid",
@@ -1328,7 +1328,7 @@
   },
   "contracts": [
     {
-      "address": "0x627ee3f07b78c4797d2e21f5e3c31ee6c174923c48ed4b88f08c2157607c06d",
+      "address": "0x2da6f448bfd4e0c2b8284aae12286d6a86ce94abdb7bd95515e89c1b3135b8",
       "class_hash": "0x366d6e82a51ce3402155716442880c855dd4c895fc5370d8df71d32e43d3a9a",
       "abi": [
         {
@@ -1668,8 +1668,8 @@
       ]
     },
     {
-      "address": "0x735f5bd2a75dc24b0000f2d05703fd1284ca02f4ccc94ec2998ec4c23249ff2",
-      "class_hash": "0x72fe5910e90f804c93fdbf9ffec69cafd55ecf53b65e3492b38c69ad46ab001",
+      "address": "0x6d20a3da66fe430ab62e5e39c14c87a4a197929020e0758bd6de24f8025df53",
+      "class_hash": "0x21e2ec25cce78a1e980190421d4347bbee08785841ef5dd328eb0f078e52d03",
       "abi": [
         {
           "type": "impl",
@@ -1791,7 +1791,7 @@
               ],
               "outputs": [
                 {
-                  "type": "(core::integer::u32, core::bool, core::integer::u256)"
+                  "type": "(core::bool, core::integer::u256)"
                 }
               ],
               "state_mutability": "external"
@@ -1964,7 +1964,7 @@
     },
     {
       "members": [],
-      "class_hash": "0x133d410ed591e44f634ded373141a234f767bea1ce04e3fa1b3f61acae19c3b",
+      "class_hash": "0x1b653d8fa57d5d0e576637fc811aef151ca481aed326332c267fd305c4660a",
       "tag": "luckyguess-GamePlayed",
       "selector": "0x3e92f492f0c33931fec40ebeefa9f27308fcadb8c9309a5456a6abbd314db6c"
     },

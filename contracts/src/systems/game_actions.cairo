@@ -3,7 +3,7 @@ use luckyguess::models::coin_flip::CoinSide;
 // Interface definition
 #[starknet::interface]
 pub trait IGameActions<T> {
-    fn flip_coin(ref self: T, bet_amount: u256, chosen_side: CoinSide) -> (u32, bool, u256);
+    fn flip_coin(ref self: T, hash: felt252, bet_amount: u256, chosen_side: CoinSide) -> (bool, u256);
 }
 
 #[dojo::contract]
@@ -11,7 +11,6 @@ mod game_actions {
     use starknet::{ContractAddress, get_caller_address, get_block_info};
     use dojo::model::ModelStorage;
     use dojo::event::EventStorage;
-    use dojo::world::IWorldDispatcherTrait;
 
     use luckyguess::models::coin_flip::{
         CoinFlipGame, CoinSide
@@ -28,9 +27,9 @@ mod game_actions {
     #[dojo::event]
     struct GamePlayed {
         #[key]
-        game_id: u32,
-        #[key]
         player: ContractAddress,
+        #[key]
+        hash: felt252,
         bet_amount: u256,
         chosen_side: CoinSide,
         actual_result: CoinSide,
@@ -42,7 +41,7 @@ mod game_actions {
 
     #[abi(embed_v0)]
     impl GameActionsImpl of super::IGameActions<ContractState> {
-        fn flip_coin(ref self: ContractState, bet_amount: u256, chosen_side: CoinSide) -> (u32, bool, u256) {
+        fn flip_coin(ref self: ContractState, hash: felt252, bet_amount: u256, chosen_side: CoinSide) -> (bool, u256) {
             let player = get_caller_address();
             let block_info = get_block_info().unbox();
             let current_block = block_info.block_number;
@@ -55,9 +54,6 @@ mod game_actions {
             // Validate game state and bet amount
             assert(!config.is_game_paused(), 'Game is paused');
             assert(config.is_valid_bet_amount(bet_amount), 'Invalid bet amount');
-
-            // Generate unique game ID using dojo's uuid
-            let game_id = world.dispatcher.uuid();
 
             // Get random result using VRF or regular random based on config
             let mut random = if config.use_vrf {
@@ -84,8 +80,8 @@ mod game_actions {
 
             // Create and store the completed game
             let completed_game = CoinFlipGame {
-                game_id,
                 player,
+                hash,
                 bet_amount,
                 chosen_side,
                 actual_result,
@@ -105,7 +101,7 @@ mod game_actions {
 
             // Emit single event with all game info
             world.emit_event(@GamePlayed {
-                game_id,
+                hash,
                 player,
                 bet_amount,
                 chosen_side,
@@ -116,8 +112,7 @@ mod game_actions {
                 timestamp: current_timestamp,
             });
 
-            // Return game_id, whether player won, and payout amount
-            (game_id, player_won, payout_amount)
+            (player_won, payout_amount)
         }
     }
 } 
