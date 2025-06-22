@@ -19,6 +19,9 @@ mod game_actions {
     use luckyguess::models::config::{
         Config, ConfigTrait, WORLD_RESOURCE
     };
+    use luckyguess::models::player::{
+        CoinFlipPlayerStats, CoinFlipPlayerStatsTrait
+    };
     use luckyguess::random::RandomImpl;
 
     #[derive(Drop, Serde)]
@@ -94,6 +97,11 @@ mod game_actions {
 
             // Store the game
             world.write_model(@completed_game);
+
+            // Update player statistics
+            let mut player_stats: CoinFlipPlayerStats = world.read_model(player);
+            player_stats.update_after_game(bet_amount, payout_amount, player_won, current_timestamp);
+            world.write_model(@player_stats);
 
             // Emit single event with all game info
             world.emit_event(@GamePlayed {

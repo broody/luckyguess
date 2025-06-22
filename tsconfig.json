@@ -1,0 +1,48 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "plugins": [ 
+      { 
+        "name": "gql.tada/ts-plugin",
+        "schemas" : [
+          {
+            "name": "appchain",
+            "schema": "https://api.cartridge.gg/x/nums-limit/torii/graphql",
+            "tadaOutputLocation": "./src/graphql/appchain-env.d.ts",
+            "tadaTurboLocation": "./src/graphql/appchain-turbo.ts"
+          }, 
+          {
+            "name": "starknet",
+            "schema": "https://api.cartridge.gg/x/nums-starknet/torii/graphql",
+            "tadaOutputLocation": "./src/graphql/starknet-env.d.ts",
+            "tadaTurboLocation": "./src/graphql/starknet-turbo.ts"
+          }
+        ]
+      } 
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+
+}

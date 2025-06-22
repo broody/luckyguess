@@ -1669,7 +1669,7 @@
     },
     {
       "address": "0x7f0a2ce0da7ee34216c2fb34be711456420068bf5ea2d370ed019149462f694",
-      "class_hash": "0x1327a431811658799a4e6b79edd783f40d5a38dd72cfe8f9e04ee1b93f1f3f2",
+      "class_hash": "0x3ccc503bda0a11f1f4c5582258b2cc2e10a90934a62169fb38985b80fca5610",
       "abi": [
         {
           "type": "impl",
@@ -1774,7 +1774,7 @@
           "items": [
             {
               "type": "function",
-              "name": "play_game",
+              "name": "flip_coin",
               "inputs": [
                 {
                   "name": "bet_amount",
@@ -1913,7 +1913,7 @@
       "tag": "luckyguess-game_actions",
       "selector": "0x3e05519d3abaac49dc9275f151ce58ff5aca88d4fda469dc9b10e0ba26365fe",
       "systems": [
-        "play_game",
+        "flip_coin",
         "upgrade"
       ]
     }
@@ -1925,6 +1925,12 @@
       "class_hash": "0x9c69e36472ee2bf8a4026c54f2a1909139225f898675bde5b4547740707cf4",
       "tag": "luckyguess-CoinFlipGame",
       "selector": "0x5fb0c17bab3191deefd7ac59cbf645b4d1ec86e26199024ef79070f48106002"
+    },
+    {
+      "members": [],
+      "class_hash": "0x47632afa6e0ec3c8e86374bc8851db8cb7ba034b90baa03996794ff98dc0a61",
+      "tag": "luckyguess-CoinFlipPlayerStats",
+      "selector": "0x1d4d7ec086edb6499da8f0d87d375035792d89cb9369df87b917e4757343294"
     },
     {
       "members": [],
