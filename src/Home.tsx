@@ -1,29 +1,59 @@
-import {
-  Box,
-  Container,
-  HStack,
-  Image,
-  Input,
-  Text,
-  VStack,
-} from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { Box, Container } from "@chakra-ui/react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import * as CANNON from "cannon-es";
-import { Button } from "./components/Button";
-import { useAccount, useConnect } from "@starknet-react/core";
-import {
-  cairo,
-  CairoUint256,
-  CallData,
-  stark,
-  Uint256,
-  uint256,
-} from "starknet";
+import Controls from "./components/Controls";
+
+const TAILS = [
+  {
+    force: 2.7,
+    angularVelocity: [10, 4, 0],
+  },
+  {
+    force: 2.9,
+    angularVelocity: [10, 4, 0],
+  },
+  {
+    force: 3.1,
+    angularVelocity: [10, 4, 0],
+  },
+  {
+    force: 3.2,
+    angularVelocity: [10, 4, 0],
+  },
+  {
+    force: 3,
+    angularVelocity: [8, 5, 0],
+  },
+];
+
+const HEADS = [
+  {
+    force: 3,
+    angularVelocity: [10, 2, 0],
+  },
+  {
+    force: 3,
+    angularVelocity: [10, 4, 0],
+  },
+  {
+    force: 3,
+    angularVelocity: [10, 6, 0],
+  },
+  {
+    force: 4,
+    angularVelocity: [9, 3, 0],
+  },
+  {
+    force: 3.8,
+    angularVelocity: [9, 5, 0],
+  },
+];
 
 const Home = () => {
   const mountRef = useRef<HTMLDivElement>(null);
   const flipCoinRef = useRef<((isHeads: boolean) => void) | null>(null);
+  const resetCoinRef = useRef<(() => void) | null>(null);
   const isWobblingRef = useRef(false);
 
   const toggleWobble = (wobble: boolean) => {
@@ -112,13 +142,8 @@ const Home = () => {
     const textureLoader = new THREE.TextureLoader();
     const headsTexture = textureLoader.load("/heads.png");
     const tailsTexture = textureLoader.load("/tails.png");
-
-    // Make the texture sharp and crisp
-    headsTexture.magFilter = THREE.NearestFilter; // Sharp when zoomed in
-    headsTexture.minFilter = THREE.NearestFilter; // Sharp when zoomed out
-    headsTexture.generateMipmaps = false; // Disable mipmaps for sharper look
-    headsTexture.wrapS = THREE.ClampToEdgeWrapping;
-    headsTexture.wrapT = THREE.ClampToEdgeWrapping;
+    headsTexture.generateMipmaps = false;
+    tailsTexture.generateMipmaps = false;
 
     // Rotate texture 90 degrees to the left
     headsTexture.rotation = Math.PI / 2;
@@ -180,26 +205,42 @@ const Home = () => {
 
     world.addBody(coinBody);
 
-    // Raycaster for click detection
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-
     // Coin flip function that can be called from anywhere
     const flipCoin = (isHeads: boolean) => {
-      const flipForce = 3;
+      console.log({ isHeads });
+      // Select appropriate array based on desired result
+      const variants = isHeads ? HEADS : TAILS;
+
+      // Randomly select a variant from the array
+      const selectedVariant =
+        variants[Math.floor(Math.random() * variants.length)];
 
       // Reset position and velocity
       coinBody.position.set(0, 0.4, 0);
       coinBody.velocity.set(0, 0, 0);
       coinBody.quaternion.set(0, 0, 0, 1);
-      coinBody.angularVelocity.set(10, 4, 0); //heads
+      coinBody.angularVelocity.set(
+        selectedVariant.angularVelocity[0],
+        selectedVariant.angularVelocity[1],
+        selectedVariant.angularVelocity[2],
+      );
 
       // Apply upward force
-      coinBody.velocity.set(0, flipForce, 0);
+      coinBody.velocity.set(0, selectedVariant.force, 0);
     };
 
-    // Store the flipCoin function in the ref so it can be accessed outside useEffect
+    // Reset coin function to reset position back to initial state
+    const resetCoin = () => {
+      // Reset position and velocity to initial state
+      coinBody.position.set(0, 0.5, 0);
+      coinBody.velocity.set(0, 0, 0);
+      coinBody.quaternion.set(0, 0, 0, 1);
+      coinBody.angularVelocity.set(0, 0, 0);
+    };
+
+    // Store functions in refs so they can be accessed outside useEffect
     flipCoinRef.current = flipCoin;
+    resetCoinRef.current = resetCoin;
 
     const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
@@ -278,145 +319,10 @@ const Home = () => {
       <Controls
         flip={(isHeads) => flipCoinRef.current?.(isHeads)}
         toggleWobble={toggleWobble}
+        reset={() => resetCoinRef.current?.()}
       />
     </Container>
   );
 };
 
-const Controls = ({
-  flip,
-  toggleWobble,
-}: {
-  flip: (isHeads: boolean) => void;
-  toggleWobble: (wobble: boolean) => void;
-}) => {
-  const [betSize, setBetSize] = useState(1);
-  const [selected, setSelected] = useState<"heads" | "tails" | null>(null);
-  const { connect, connectors } = useConnect();
-  const { account } = useAccount();
-
-  const executeFlip = async (isHeads: boolean) => {
-    if (!account) {
-      return;
-    }
-
-    setSelected(isHeads ? "heads" : "tails");
-    toggleWobble(true);
-
-    const randomHash = stark.randomAddress();
-    const bet: Uint256 = cairo.uint256(BigInt(betSize) * 10n ** 18n);
-    const { transaction_hash } = await account.execute([
-      {
-        contractAddress: import.meta.env.VITE_VRF_CONTRACT,
-        entrypoint: "request_random",
-        calldata: CallData.compile({
-          caller: import.meta.env.VITE_GAME_CONTRACT,
-          source: { type: 0, address: account.address },
-        }),
-      },
-      {
-        contractAddress: import.meta.env.VITE_GAME_CONTRACT,
-        entrypoint: "flip_coin",
-        calldata: CallData.compile([randomHash, bet, isHeads ? 0 : 1]),
-      },
-    ]);
-
-    const receipt = await account.waitForTransaction(transaction_hash, {
-      retryInterval: 500,
-    });
-    console.log(receipt);
-    toggleWobble(false);
-    flip(isHeads);
-  };
-
-  return (
-    <Box
-      position="fixed"
-      w={["calc(100% - 100px)", "calc(100% - 100px)", "600px"]}
-      h={["30%", "35%", "20%"]}
-      bottom="40px"
-      left="50%"
-      transform="translateX(-50%)"
-      zIndex={10}
-    >
-      <Box
-        boxSize="100%"
-        bg="#2e502e"
-        borderRadius="12px"
-        p="20px"
-        boxShadow="0 4px 8px rgba(0,0,0,0.3)"
-        display="flex"
-        flexDir="column"
-        justifyContent="center"
-        alignItems="center"
-      >
-        {account ? (
-          <>
-            <VStack w="full" justify="center" gap="0">
-              <Text color="#759a58" fontSize="18px" fontWeight="bold">
-                Select
-              </Text>
-              <HStack w="full" justify="center">
-                <Image
-                  src="/coin_face.png"
-                  boxSize="90px"
-                  cursor="pointer"
-                  transition="all 0.2s ease-in-out"
-                  _hover={{ scale: 1.1 }}
-                  opacity={selected === "heads" || selected === null ? 1 : 0.5}
-                  onClick={() => executeFlip(true)}
-                />
-                <Image
-                  src="/coin_butt.png"
-                  boxSize="100px"
-                  cursor="pointer"
-                  transition="all 0.2s ease-in-out"
-                  _hover={{ scale: 1.1 }}
-                  opacity={selected === "tails" || selected === null ? 1 : 0.5}
-                  onClick={() => executeFlip(false)}
-                />
-              </HStack>
-              <VStack>
-                <Text fontSize="18px" fontWeight="bold" color="#759a58">
-                  Bet Size{" "}
-                </Text>
-                <HStack>
-                  <Input
-                    borderColor="#133217"
-                    backgroundColor="#133217"
-                    type="number"
-                    value={betSize}
-                    onChange={(e) => {
-                      setBetSize(Number(e.target.value));
-                    }}
-                    h="40px"
-                    w="100px"
-                  />
-                  <Button
-                    h="40px"
-                    borderRadius="4px"
-                    fontSize="18px"
-                    fontWeight="bold"
-                    border="1px solid #759a58"
-                    _hover={{ bg: "#133217", color: "#759a58" }}
-                  >
-                    $STRK
-                  </Button>
-                </HStack>
-              </VStack>
-            </VStack>
-          </>
-        ) : (
-          <Button
-            onClick={() => {
-              connect({ connector: connectors[0] });
-            }}
-          >
-            Connect
-          </Button>
-        )}
-      </Box>
-    </Box>
-  );
-};
 export default Home;
